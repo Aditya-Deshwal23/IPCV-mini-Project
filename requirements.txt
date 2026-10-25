@@ -1,0 +1,14 @@
+-e .
+opencv-python>=4.8
+numpy
+scipy
+scikit-image
+matplotlib
+pillow
+pandas
+pytesseract
+rapidfuzz
+streamlit>=1.35
+pytest
+fpdf2
+ruff>=0.9

@@ -1,0 +1,10 @@
+venv/
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.py[cod]
+*.egg-info/
+data/degraded/*
+!data/degraded/.gitkeep
+data/videos/*.mp4

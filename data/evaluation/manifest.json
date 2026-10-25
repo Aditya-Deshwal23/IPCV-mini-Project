@@ -1,0 +1,22 @@
+{
+  "seed": 2026,
+  "count": 2,
+  "pages": [
+    {
+      "stem": "page_000",
+      "seed": 479243620,
+      "clean": "clean/page_000.png",
+      "set_a": "SET_A/page_000.png",
+      "set_b": "SET_B/page_000.png",
+      "ground_truth": "Document Study 01\n\nSmall changes in light can make a page harder to read. Image processing improves contrast while preserving the original words and layout.\n\nA community garden brings neighbors together. People share tools, water the plants, and enjoy fresh vegetables throughout the summer.\n\nCareful planning saves time during a busy workday. Set priorities, prepare materials early, and leave space for unexpected tasks.\n\nLibraries preserve knowledge and make it available to everyone. Readers can explore history, science, art, and new ideas at their own pace."
+    },
+    {
+      "stem": "page_001",
+      "seed": 454024514,
+      "clean": "clean/page_001.png",
+      "set_a": "SET_A/page_001.png",
+      "set_b": "SET_B/page_001.png",
+      "ground_truth": "Document Study 02\n\nA careful reader can find useful details in every printed document. Clear text helps people understand instructions and keep accurate records.\n\nEvery visitor should check in at the front desk. Please keep this pass visible and return it before leaving the building.\n\nCareful planning saves time during a busy workday. Set priorities, prepare materials early, and leave space for unexpected tasks."
+    }
+  ]
+}
