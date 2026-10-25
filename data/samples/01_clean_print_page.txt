@@ -1,0 +1,19 @@
+DOCUVISION
+
+A SIMPLE GUIDE TO CLEARER DOCUMENTS
+
+Why does a document photo need processing?
+
+A photograph can be tilted, shaded, noisy, or out of focus. These changes make printed words harder to read, both for people and for a computer.
+
+The scan steps
+
+First, the page is found and straightened. Next, image processing improves brightness and contrast, reduces small noise, and separates dark text from light paper.
+
+What OCR does
+
+Optical Character Recognition, or OCR, looks at letters in an image and produces editable text. Clear, ordinary printed text is usually easier to recognize than decorative writing.
+
+Try it yourself
+
+Select this image in DocuVision, open Scan, and run the document pipeline. Use the stage selector to see how each step changes the page. Then inspect the OCR text and download the result.

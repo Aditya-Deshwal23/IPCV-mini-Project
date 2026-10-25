@@ -103,6 +103,21 @@ def _sidebar_image() -> None:
             if decoded is not None:
                 st.session_state["source_image"] = decoded
                 st.session_state["source_name"] = selected.name
+                if selected.stem == "01_clean_print_page":
+                    st.sidebar.caption(
+                        "Demo 1: clean, ordinary print. Best for your first scan "
+                        "and OCR demonstration."
+                    )
+                elif selected.stem == "02_shadowed_tilted_page":
+                    st.sidebar.caption(
+                        "Demo 2: simulated shadow and perspective. Best for showing "
+                        "page detection and rectification; OCR may be less accurate."
+                    )
+                reference_path = selected.with_suffix(".txt")
+                if reference_path.is_file():
+                    st.sidebar.caption(
+                        f"Optional ground-truth text for CER: {reference_path.name}"
+                    )
     if "source_image" in st.session_state:
         st.sidebar.caption(
             f"Current: {st.session_state.get('source_name', 'image')} "

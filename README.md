@@ -23,6 +23,25 @@ Replace these placeholders with screenshots captured from a running app:
 <!-- Screenshot placeholder: capture the evaluation charts and tables. -->
 ![Evaluation results](docs/screenshots/evaluation.png)
 
+## Demo images
+
+The Sample source includes two original pages made for a clear project
+demonstration:
+
+1. **Clean printed page** — use this first to demonstrate a readable scan and
+   OCR on ordinary text.
+2. **Shadowed, tilted page** — use this second to demonstrate page-corner
+   detection and perspective correction. OCR can be less accurate on this
+   deliberately harder input.
+
+Matching `.txt` files contain the sample text. Paste that text into the Scan
+tab's optional ground-truth field if you want to demonstrate character error
+rate (CER).
+
+![Clean printed DocuVision sample page](data/samples/01_clean_print_page.jpg)
+
+![Shadowed and tilted DocuVision sample page](data/samples/02_shadowed_tilted_page.jpg)
+
 ## Architecture
 
 ```mermaid
@@ -129,6 +148,11 @@ streamlit run app.py
 The sidebar accepts an uploaded image, camera capture, or any image placed in
 `data/samples/`. The Motion tab can generate a self-contained synthetic video
 or accept a video upload. The app shows a warning when Tesseract is unavailable.
+For a presentation, start with `01_clean_print_page.jpg` to show the complete
+scan and OCR workflow; then use `02_shadowed_tilted_page.jpg` to demonstrate
+page-corner detection and perspective correction. Each sample has a matching
+`.txt` ground-truth file that can be pasted into the Scan tab's optional CER
+field.
 In Scan, the stage selector opens on the final stage. If OCR needs another try,
 choose enhanced grayscale, black-and-white, or original grayscale and select a
 text layout such as "Sparse text / poster" for cover titles. Enable the crop
