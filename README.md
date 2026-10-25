@@ -129,6 +129,11 @@ streamlit run app.py
 The sidebar accepts an uploaded image, camera capture, or any image placed in
 `data/samples/`. The Motion tab can generate a self-contained synthetic video
 or accept a video upload. The app shows a warning when Tesseract is unavailable.
+In Scan, the stage selector opens on the final stage. If OCR needs another try,
+choose enhanced grayscale, black-and-white, or original grayscale and select a
+text layout such as "Sparse text / poster" for cover titles. Enable the crop
+control to focus OCR on a selected area. Decorative fonts, artwork, shadows,
+and textured backgrounds can still reduce OCR accuracy.
 
 ### Deploy on Streamlit Community Cloud
 
