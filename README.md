@@ -128,6 +128,16 @@ The sidebar accepts an uploaded image, camera capture, or any image placed in
 `data/samples/`. The Motion tab can generate a self-contained synthetic video
 or accept a video upload. The app shows a warning when Tesseract is unavailable.
 
+### Deploy on Streamlit Community Cloud
+
+Create a Streamlit Community Cloud app from this GitHub repository, select the
+`main` branch, and set `app.py` as the main file. Python dependencies are
+installed from `requirements.txt`; system packages such as Tesseract are
+installed from the root-level `packages.txt`. The deployment includes the
+English Tesseract OCR engine, so no separate OCR setup or secret is required.
+After changing either dependency file, wait for the app to rebuild. If it does
+not rebuild automatically, use **Manage app → Reboot**.
+
 ## Run tests and lint
 
 ```bash
