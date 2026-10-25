@@ -8,6 +8,8 @@ processing implementations live in `src/docuvision/`.
 
 **Live app:** [Open DocuVision](https://ipcv-mini-project-eycbr3cmbbyzikdmudnqrv.streamlit.app/)
 
+**Beginner's guide:** [Download the complete project and demonstration guide](DocuVision_Beginners_Guide_and_Demo.docx)
+
 ## Screenshots
 
 Replace these placeholders with screenshots captured from a running app:

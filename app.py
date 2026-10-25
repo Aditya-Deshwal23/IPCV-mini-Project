@@ -140,7 +140,7 @@ def _sidebar_settings() -> None:
 def main() -> None:
     """Render the shared sidebar, availability banner, and eight lab tabs."""
     st.title("DocuVision")
-    st.caption("Classical document image processing · interactive syllabus laboratory")
+    st.caption("Scan, clean, and recognize text in document images.")
     _sidebar_settings()
     _sidebar_image()
     if not tesseract_available():
