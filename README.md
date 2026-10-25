@@ -6,6 +6,8 @@ geometric registration, video tracking, compression, OCR, and reproducible
 evaluation. The Streamlit interface is presentation and orchestration only;
 processing implementations live in `src/docuvision/`.
 
+**Live app:** [Open DocuVision](https://ipcv-mini-project-eycbr3cmbbyzikdmudnqrv.streamlit.app/)
+
 ## Screenshots
 
 Replace these placeholders with screenshots captured from a running app:
