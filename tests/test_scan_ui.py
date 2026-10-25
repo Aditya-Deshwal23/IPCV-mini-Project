@@ -1,5 +1,6 @@
 """Focused tests for Scan-tab source selection and OCR retries."""
 
+import json
 from pathlib import Path
 
 import numpy as np
@@ -7,6 +8,7 @@ import pandas as pd
 import pytest
 from streamlit.testing.v1 import AppTest
 
+from docuvision.config import PipelineConfig
 from docuvision.pipeline import PipelineResult
 from docuvision.ui import tab_scan
 
@@ -83,11 +85,55 @@ def test_cached_ocr_passes_selected_segmentation_mode(monkeypatch) -> None:
     tab_scan._cached_ocr.clear()
     image = np.arange(6, dtype=np.uint8).reshape(2, 3)
 
-    text, boxes = tab_scan._cached_ocr(image.tobytes(), image.shape, 11)
+    text, boxes = tab_scan._cached_ocr(image.tobytes(), image.shape, 11, True)
 
     assert text == "mode 11"
     assert boxes.empty
     assert calls == [11]
+
+
+def test_cached_ocr_invalidates_when_tesseract_availability_changes(
+    monkeypatch,
+) -> None:
+    """Do not reuse an unavailable OCR result after Tesseract is installed."""
+    calls: list[int] = []
+
+    def fake_run_ocr(image: np.ndarray, psm: int) -> tuple[str, pd.DataFrame]:
+        calls.append(psm)
+        return "recognized", pd.DataFrame(columns=["text"])
+
+    monkeypatch.setattr(tab_scan, "run_ocr", fake_run_ocr)
+    tab_scan._cached_ocr.clear()
+    image = np.zeros((2, 3), dtype=np.uint8)
+
+    tab_scan._cached_ocr(image.tobytes(), image.shape, 6, False)
+    tab_scan._cached_ocr(image.tobytes(), image.shape, 6, True)
+
+    assert calls == [6, 6]
+    tab_scan._cached_ocr.clear()
+
+
+def test_cached_pipeline_invalidates_when_tesseract_availability_changes(
+    monkeypatch,
+) -> None:
+    """Recompute a cached scan when the OCR dependency becomes available."""
+    calls: list[PipelineConfig] = []
+
+    def fake_run_pipeline(image: np.ndarray, config: PipelineConfig) -> PipelineResult:
+        calls.append(config)
+        return _pipeline_result()
+
+    monkeypatch.setattr(tab_scan, "run_pipeline", fake_run_pipeline)
+    tab_scan._cached_pipeline.clear()
+    image = np.zeros((2, 3), dtype=np.uint8)
+    config = PipelineConfig()
+    config_json = json.dumps(config.to_dict(), sort_keys=True)
+
+    tab_scan._cached_pipeline(image.tobytes(), image.shape, config_json, False)
+    tab_scan._cached_pipeline(image.tobytes(), image.shape, config_json, True)
+
+    assert len(calls) == 2
+    tab_scan._cached_pipeline.clear()
 
 
 def test_scan_tab_defaults_to_final_stage_and_exposes_ocr_choices(monkeypatch) -> None:
@@ -107,7 +153,11 @@ def test_scan_tab_defaults_to_final_stage_and_exposes_ocr_choices(monkeypatch) -
     app = AppTest.from_file(app_path, default_timeout=30).run()
     app.session_state["source_image"] = image
     app.session_state["source_name"] = "synthetic.png"
+    app.session_state["pipeline_result"] = _pipeline_result()
+    app.session_state["last_scan_source"] = image.copy()
+    app.session_state["last_scan_ocr_available"] = not tab_scan.tesseract_available()
     app.run()
+    assert "pipeline_result" not in app.session_state
     app.button(key="scan_run").click().run()
 
     assert not app.exception

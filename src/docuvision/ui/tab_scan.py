@@ -18,14 +18,17 @@ from numpy.typing import NDArray
 
 from docuvision.config import PipelineConfig
 from docuvision.evaluation.metrics import cer
-from docuvision.ocr import run_ocr
+from docuvision.ocr import run_ocr, tesseract_available
 from docuvision.pipeline import PipelineResult, run_pipeline, scan_to_pdf
 from docuvision.ui.common import gray, require_image, rgb, show_pair, syllabus_info
 
 
 @st.cache_data(show_spinner=False)
 def _cached_pipeline(
-    image_bytes: bytes, shape: tuple[int, ...], config_json: str
+    image_bytes: bytes,
+    shape: tuple[int, ...],
+    config_json: str,
+    ocr_available: bool,
 ) -> PipelineResult:
     """Cache expensive pipeline work by source image and serialized config.
 
@@ -33,6 +36,8 @@ def _cached_pipeline(
         image_bytes: Contiguous source pixel bytes.
         shape: Original array dimensions used to restore the image.
         config_json: Stable JSON serialization of the active pipeline preset.
+        ocr_available: Included in the cache key so an old no-OCR result is not
+            reused after Tesseract becomes available.
 
     Returns:
         Complete pipeline result containing all intermediate stages.
@@ -41,12 +46,13 @@ def _cached_pipeline(
     """
     image = np.frombuffer(image_bytes, dtype=np.uint8).reshape(shape).copy()
     config = PipelineConfig(**json.loads(config_json))
+    del ocr_available  # Streamlit uses this argument in the cache key.
     return run_pipeline(image, config)
 
 
 @st.cache_data(show_spinner=False)
 def _cached_ocr(
-    image_bytes: bytes, shape: tuple[int, ...], psm: int
+    image_bytes: bytes, shape: tuple[int, ...], psm: int, ocr_available: bool
 ) -> tuple[str, pd.DataFrame]:
     """Cache OCR for a selected image and Tesseract page-segmentation mode.
 
@@ -54,6 +60,8 @@ def _cached_ocr(
         image_bytes: Contiguous uint8 image bytes.
         shape: Image dimensions used to restore the array.
         psm: Tesseract page-segmentation mode.
+        ocr_available: Included in the cache key to invalidate an unavailable
+            result after Tesseract is installed.
 
     Returns:
         Recognized text and the word-box DataFrame from Tesseract.
@@ -61,6 +69,7 @@ def _cached_ocr(
     Syllabus: Unit 9 - character recognition
     """
     image = np.frombuffer(image_bytes, dtype=np.uint8).reshape(shape).copy()
+    del ocr_available  # Streamlit uses this argument in the cache key.
     return run_ocr(image, psm=psm)
 
 
@@ -161,20 +170,30 @@ def render(
     if source is None:
         return
     source_id = hashlib.blake2b(source.tobytes(), digest_size=6).hexdigest()
+    ocr_available = tesseract_available()
     previous_source = st.session_state.get("last_scan_source")
     if (
         "pipeline_result" in st.session_state
-        and not _source_matches(source, previous_source)
+        and (
+            not _source_matches(source, previous_source)
+            or st.session_state.get("last_scan_ocr_available") is not ocr_available
+        )
     ):
         st.session_state.pop("pipeline_result", None)
         st.session_state.pop("last_scan_source", None)
+        st.session_state.pop("last_scan_ocr_available", None)
         st.session_state.pop("scan_ocr_override", None)
+        st.session_state.pop("scan_ocr_text", None)
+        st.session_state.pop("scan_ocr_display_signature", None)
     if st.button("Run document pipeline", type="primary", key="scan_run"):
         config_json = json.dumps(config.to_dict(), sort_keys=True)
         with st.spinner("Processing document stages..."):
-            result = _cached_pipeline(source.tobytes(), source.shape, config_json)
+            result = _cached_pipeline(
+                source.tobytes(), source.shape, config_json, ocr_available
+            )
         st.session_state["pipeline_result"] = result
         st.session_state["last_scan_source"] = source.copy()
+        st.session_state["last_scan_ocr_available"] = ocr_available
         st.session_state.pop("scan_ocr_text", None)
         st.session_state.pop("scan_ground_truth", None)
         st.session_state.pop("scan_ocr_override", None)
@@ -289,7 +308,7 @@ def render(
     ):
         with st.spinner("Recognizing text with the selected image and layout..."):
             text, word_boxes = _cached_ocr(
-                ocr_image.tobytes(), ocr_image.shape, psm
+                ocr_image.tobytes(), ocr_image.shape, psm, ocr_available
             )
         st.session_state["scan_ocr_override"] = {
             "text": text,
@@ -297,6 +316,7 @@ def render(
             "source": ocr_image_option,
             "psm": psm,
             "crop": crop_ranges if crop_enabled else None,
+            "ocr_available": ocr_available,
         }
     override = st.session_state.get("scan_ocr_override")
     if (
@@ -304,6 +324,7 @@ def render(
         and override.get("source") == ocr_image_option
         and override.get("psm") == psm
         and override.get("crop") == (crop_ranges if crop_enabled else None)
+        and override.get("ocr_available") is ocr_available
     ):
         recognized_text = str(override.get("text", ""))
         word_boxes = override.get("boxes")
