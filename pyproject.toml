@@ -9,7 +9,7 @@ description = "Classical image processing pipeline for document scanning from vi
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "opencv-python>=4.8",
+    "opencv-python-headless>=4.8",
     "numpy",
     "scipy",
     "scikit-image",
